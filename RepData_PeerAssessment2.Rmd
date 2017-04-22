@@ -1,22 +1,39 @@
 ---
 title: "RepData_PeerAssessment2"
-output: github_document
+author: "by Fabio Bianchini"
+date: "18/04/2017"
+output:
+  html_document:
+    keep_md: yes
+  pdf_document:
+    latex_engine: xelatex
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-library(downloader)  # download (hopefully platform independent)
+library(downloader)  # download 
+library(R.utils)  # needed for `bunzip2` function
 library(tools)  # md5sum
-library(R.utils)  # bunzip2
 dataset_url <- "https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2"
 ```
 
 ## Including Code 
 
 
-1) - Load the data (i.e. read.csv())
-```{r}
+1) - Loading and Processing the Raw Data
+```{r, eval=FALSE, include=FALSE}
+download(dataset_url, "Storm_Data.bz2", mode = "wb") #Download dataset from specific URL
+```
 
+```{r}
+bunzip2("Storm_Data.bz2", "Storm_data.csv", remove = FALSE, skip = TRUE)
+Storm_Data <- read.csv("Storm_data.csv")
+```
+
+```{r}
+names(Storm_Data)
+head(Storm_Data)
+tail(Storm_Data)
 ```
 
 You can include R code in the document as follows:
