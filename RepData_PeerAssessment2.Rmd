@@ -5,26 +5,28 @@ output: github_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(downloader)  # download (hopefully platform independent)
+library(tools)  # md5sum
+library(R.utils)  # bunzip2
+dataset_url <- "https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2"
 ```
 
-## GitHub Documents
+## Including Code 
 
-This is an R Markdown format used for publishing markdown documents to GitHub. When you click the **Knit** button all R code chunks are run and a markdown file (.md) suitable for publishing to GitHub is generated.
 
-## Including Code
+1) - Load the data (i.e. read.csv())
+```{r}
+
+```
 
 You can include R code in the document as follows:
 
-```{r cars}
-summary(cars)
-```
+2) - Process/transform the data (if necessary) into a format suitable for your analysis
+
 
 ## Including Plots
 
 You can also embed plots, for example:
 
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
