@@ -1,13 +1,17 @@
 ---
 title: "RepData_PeerAssessment2"
 author: "by Fabio Bianchini"
-date: "18/04/2017"
+date: "XX/XX/2017"
 output:
   html_document:
     keep_md: yes
   pdf_document:
     latex_engine: xelatex
 ---
+
+
+The following timelines show the different time spans for each period of unique data collection and processing procedures. Select below for detailed decriptions of each data collection type. 
+<https://www.ncdc.noaa.gov/stormevents/details.jsp>
 
 ```{r Library, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -16,60 +20,109 @@ library(R.utils)  # needed for bunzip2 function
 library(dplyr)
 library(tidyverse)
 library(stringr) # need for string manipulation
+library(forcats)
 ```
 
 Loading and Processing the Raw Data
-```{r, cache=TRUE}
+```{r, Load data, cache=TRUE}
 url <- "https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2"
 download(url, "Storm_Data.bz2", mode = "wb") #Download dataset from specific URL
 ```
 
-```{r,  cache=TRUE}
+```{r, Storm_Data - dataset creation, cache=TRUE}
 bunzip2("Storm_Data.bz2", "Storm_data.csv", remove = FALSE, skip = TRUE) # unzip data file
 Storm_Data <- read.csv("Storm_data.csv") #
-```
-
-```{r}
-names(Storm_Data)
-head(Storm_Data)
-#tail(Storm_Data)
+Storm_Data <- as_tibble(Storm_Data)
 str(Storm_Data)
 ```
 
-Process/transform the data (if necessary) into a format suitable for your analysis
+```{r, Storm_Data - data analysis}
+dim(Storm_Data) # Dataset dimension
+names(Storm_Data) 
+```
 
-```{r, Rename Dataset columb}
+Process/transform the data into a format suitable for your analysis
+
+```{r, ds1 - Rearrange and rename Dataset columb}
 ds1 <- Storm_Data
-names(ds1) <- str_to_lower(names(ds1)) # Rename dataset columb names
+# variable must have a unique name in the dataset
+names(ds1)[names(ds1)=="STATE__"] <- "STATE_NUM"
+names(ds1)[names(ds1)=="LONGITUDE_"] <- "LONGITUDE_E"
+names(ds1) <- str_to_lower(names(ds1)) # Force lowercase dataset columb names
 names(ds1) <-str_replace(names(ds1), "_+$","") # Remove final underscore from columb names
 names(ds1) <- str_replace(names(ds1), "_",".") #
 names(ds1)
 ```
 
-1. Across the United States, which types of events (as indicated in the 𝙴𝚅𝚃𝚈𝙿𝙴 variable) are most harmful with respect to population health?
 
-Check how many difference type events are present in the dataset
-```{r}
-dim(table(ds1$evtype))
+```{r, ds2 - Significant observation dataset}
+# Remove the observation with no interest for answer the question fo this analysis
+#ds2 <- ds1[ds1$fatalities > 0 | ds1$injuries > 0 | ds1$cropdmg > 0 | ds1$propdmg > 0,] 
+ds2 <- ds1[ds1$fatalities > 0 | ds1$injuries > 0,] 
+dim(ds2)
 ```
-it's seems to be `r dim(table(ds1$evtype))` different events but if a check inside I see that the same event name appear in upper and lower case
+#####1. Across the United States, which types of events (as indicated in the 𝙴𝚅𝚃𝚈𝙿𝙴 variable) are most harmful with respect to population health?
 
-```{r}
-table(ds1$evtype)[21:22]
+We assume that the variable of interest, for analazing the impact on population healt, present in the dataset are:
+- fatalites 
+- injuries 
+so we create a subset from the original dataset with only the variable of interest.
+
+```{r, ds3}
+# Create a dataset with only the columb/variable of interest to answer the question
+ds3 <- select(ds2, fatalities, injuries, evtype)
+# Force all `evtypes` to uppercase 
+ds3$evtype <- str_to_upper(ds3$evtype)
+# replace multiple spaces with single space
+ds3$evtype <- gsub(" +", " ", ds3$evtype)
+dim(table(ds3$evtype))
 ```
-```{r}
-ds1$evtype <- str_to_upper(ds1$evtype)
-dim(table(ds1$evtype))
-table(ds1$evtype)[15:28]
-
+```{r, ds4}
+ds4 <- ds3 %>% group_by(evtype) %>% summarise(tot.fatalities = sum(fatalities), tot.injuries = sum(injuries))
+dim(ds4) # 
 ```
 
-The events number decrease from 
+```{r, fatalities analysis}
+fatalities <- arrange(ds4, desc(tot.fatalities))
+mean(fatalities$tot.fatalities) # Mean value for fatalities
+```
+
+```{r, plot total fatalities by Storm}
+plot_fatalities <- fatalities[fatalities$tot.fatalities > mean(fatalities$tot.fatalities), ]
+nrow(plot_fatalities) # Events with n. of fatalities greater that the mean
+ggplot(plot_fatalities, aes(tot.fatalities, fct_reorder(evtype, tot.fatalities))) + geom_point() + labs(title="Total fatalities by storm type", x="N. fatalities", y="", caption = "") 
+```
+
+```{r, injuries analysis}
+injuries <- arrange(ds4, desc(tot.injuries))
+mean(injuries$tot.injuries) # Mean value for injuries
+```
+
+```{r, plot total injuries by Storm}
+plot_injuries <- injuries[injuries$tot.injuries > mean(injuries$tot.injuries), ]
+nrow(plot_injuries) # Events with n. of injuries > mean(injuries)
+ggplot(plot_injuries, aes(tot.injuries, fct_reorder(evtype, tot.injuries))) + geom_point() + labs(title="Total injuries by Storm Type", x="N.injuries", y="") 
+```
 
 
-## Including Plots
+```{r, Storm Data Event Table}
+# Create a vector for all the possible Event Types (48 from Directive 10-1605)
+evtype.group <- c("Astronomical Low Tide", "Avalanche","Blizzard", "Coastal Flood", "Cold Wind Chill", "Debris Flow", "Dense Fog","Dense Smoke", "Drought", "Dust Devil", "Dust Storm", "Excessive Heat", "Extreme Cold Wind Chill", "Flash Flood ", "Flood", "Frost Freeze", "Freezing Fog","Funnel Cloud", "Hail", "Heat", "Heavy Rain","Heavy Snow", "High Surf", "High Wind", "Hurricane Typhoon", "Ice Storm", "Lakeshore Flood", "Lake Effect Snow", "Lightning", "Marine Hail", "Marine High Wind", "Marine Strong Wind","Marine Thunderstorm Wind","Rip Current", "Seiche", "Sleet","Storm Surge Tide", "Strong Wind", "Thunderstorm Wind", "Tornado", "Tropical Depression", "Tropical Storm", "Tsunami", "Volcanic Ash", "Waterspout", "Wildfire", "Winter Storm", "Winter Weather")
+evtype.group <- str_to_upper(evtype.group)
+evtype.group <- gsub(" ", "|", evtype.group)
+evtype.group
+```
 
-You can also embed plots, for example:
+ggplot(data = diamonds) +
+          geom_bar(
+            mapping = aes(x = cut, fill = clarity),
+            position = "dodge"
+          )
+          
+Now we assign a precise even type at each observation in the Dataset 
 
+#####2. Across the United States, which types of events have the greatest economic consequences?
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+We assume that the variable of interest, for greatest economic consequences, present in the dataset are:
+- propdmg (Property damage)
+- cropdmg (Crop damage)

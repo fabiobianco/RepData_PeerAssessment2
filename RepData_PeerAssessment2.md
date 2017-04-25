@@ -1,6 +1,10 @@
 # RepData_PeerAssessment2
 by Fabio Bianchini  
-18/04/2017  
+XX/XX/2017  
+
+
+The following timelines show the different time spans for each period of unique data collection and processing procedures. Select below for detailed decriptions of each data collection type. 
+<https://www.ncdc.noaa.gov/stormevents/details.jsp>
 
 
 
@@ -24,73 +28,12 @@ bunzip2("Storm_Data.bz2", "Storm_data.csv", remove = FALSE, skip = TRUE) # unzip
 
 ```r
 Storm_Data <- read.csv("Storm_data.csv") #
-```
-
-
-```r
-names(Storm_Data)
-```
-
-```
-##  [1] "STATE__"    "BGN_DATE"   "BGN_TIME"   "TIME_ZONE"  "COUNTY"    
-##  [6] "COUNTYNAME" "STATE"      "EVTYPE"     "BGN_RANGE"  "BGN_AZI"   
-## [11] "BGN_LOCATI" "END_DATE"   "END_TIME"   "COUNTY_END" "COUNTYENDN"
-## [16] "END_RANGE"  "END_AZI"    "END_LOCATI" "LENGTH"     "WIDTH"     
-## [21] "F"          "MAG"        "FATALITIES" "INJURIES"   "PROPDMG"   
-## [26] "PROPDMGEXP" "CROPDMG"    "CROPDMGEXP" "WFO"        "STATEOFFIC"
-## [31] "ZONENAMES"  "LATITUDE"   "LONGITUDE"  "LATITUDE_E" "LONGITUDE_"
-## [36] "REMARKS"    "REFNUM"
-```
-
-```r
-head(Storm_Data)
-```
-
-```
-##   STATE__           BGN_DATE BGN_TIME TIME_ZONE COUNTY COUNTYNAME STATE
-## 1       1  4/18/1950 0:00:00     0130       CST     97     MOBILE    AL
-## 2       1  4/18/1950 0:00:00     0145       CST      3    BALDWIN    AL
-## 3       1  2/20/1951 0:00:00     1600       CST     57    FAYETTE    AL
-## 4       1   6/8/1951 0:00:00     0900       CST     89    MADISON    AL
-## 5       1 11/15/1951 0:00:00     1500       CST     43    CULLMAN    AL
-## 6       1 11/15/1951 0:00:00     2000       CST     77 LAUDERDALE    AL
-##    EVTYPE BGN_RANGE BGN_AZI BGN_LOCATI END_DATE END_TIME COUNTY_END
-## 1 TORNADO         0                                               0
-## 2 TORNADO         0                                               0
-## 3 TORNADO         0                                               0
-## 4 TORNADO         0                                               0
-## 5 TORNADO         0                                               0
-## 6 TORNADO         0                                               0
-##   COUNTYENDN END_RANGE END_AZI END_LOCATI LENGTH WIDTH F MAG FATALITIES
-## 1         NA         0                      14.0   100 3   0          0
-## 2         NA         0                       2.0   150 2   0          0
-## 3         NA         0                       0.1   123 2   0          0
-## 4         NA         0                       0.0   100 2   0          0
-## 5         NA         0                       0.0   150 2   0          0
-## 6         NA         0                       1.5   177 2   0          0
-##   INJURIES PROPDMG PROPDMGEXP CROPDMG CROPDMGEXP WFO STATEOFFIC ZONENAMES
-## 1       15    25.0          K       0                                    
-## 2        0     2.5          K       0                                    
-## 3        2    25.0          K       0                                    
-## 4        2     2.5          K       0                                    
-## 5        2     2.5          K       0                                    
-## 6        6     2.5          K       0                                    
-##   LATITUDE LONGITUDE LATITUDE_E LONGITUDE_ REMARKS REFNUM
-## 1     3040      8812       3051       8806              1
-## 2     3042      8755          0          0              2
-## 3     3340      8742          0          0              3
-## 4     3458      8626          0          0              4
-## 5     3412      8642          0          0              5
-## 6     3450      8748          0          0              6
-```
-
-```r
-#tail(Storm_Data)
+Storm_Data <- as_tibble(Storm_Data)
 str(Storm_Data)
 ```
 
 ```
-## 'data.frame':	902297 obs. of  37 variables:
+## Classes 'tbl_df', 'tbl' and 'data.frame':	902297 obs. of  37 variables:
 ##  $ STATE__   : num  1 1 1 1 1 1 1 1 1 1 ...
 ##  $ BGN_DATE  : Factor w/ 16335 levels "1/1/1966 0:00:00",..: 6523 6523 4242 11116 2224 2224 2260 383 3980 3980 ...
 ##  $ BGN_TIME  : Factor w/ 3608 levels "00:00:00 AM",..: 272 287 2705 1683 2584 3186 242 1683 3186 3186 ...
@@ -121,7 +64,7 @@ str(Storm_Data)
 ##  $ CROPDMGEXP: Factor w/ 9 levels "","?","0","2",..: 1 1 1 1 1 1 1 1 1 1 ...
 ##  $ WFO       : Factor w/ 542 levels ""," CI","%SD",..: 1 1 1 1 1 1 1 1 1 1 ...
 ##  $ STATEOFFIC: Factor w/ 250 levels "","ALABAMA, Central",..: 1 1 1 1 1 1 1 1 1 1 ...
-##  $ ZONENAMES : Factor w/ 25112 levels "","                                                                                                                               "| __truncated__,..: 1 1 1 1 1 1 1 1 1 1 ...
+##  $ ZONENAMES : Factor w/ 25112 levels "","                                                                                                               "| __truncated__,..: 1 1 1 1 1 1 1 1 1 1 ...
 ##  $ LATITUDE  : num  3040 3042 3340 3458 3412 ...
 ##  $ LONGITUDE : num  8812 8755 8742 8626 8642 ...
 ##  $ LATITUDE_E: num  3051 0 0 0 0 ...
@@ -130,89 +73,197 @@ str(Storm_Data)
 ##  $ REFNUM    : num  1 2 3 4 5 6 7 8 9 10 ...
 ```
 
-Process/transform the data (if necessary) into a format suitable for your analysis
+
+```r
+dim(Storm_Data) # Dataset dimension
+```
+
+```
+## [1] 902297     37
+```
+
+```r
+names(Storm_Data) 
+```
+
+```
+##  [1] "STATE__"    "BGN_DATE"   "BGN_TIME"   "TIME_ZONE"  "COUNTY"    
+##  [6] "COUNTYNAME" "STATE"      "EVTYPE"     "BGN_RANGE"  "BGN_AZI"   
+## [11] "BGN_LOCATI" "END_DATE"   "END_TIME"   "COUNTY_END" "COUNTYENDN"
+## [16] "END_RANGE"  "END_AZI"    "END_LOCATI" "LENGTH"     "WIDTH"     
+## [21] "F"          "MAG"        "FATALITIES" "INJURIES"   "PROPDMG"   
+## [26] "PROPDMGEXP" "CROPDMG"    "CROPDMGEXP" "WFO"        "STATEOFFIC"
+## [31] "ZONENAMES"  "LATITUDE"   "LONGITUDE"  "LATITUDE_E" "LONGITUDE_"
+## [36] "REMARKS"    "REFNUM"
+```
+
+Process/transform the data into a format suitable for your analysis
 
 
 ```r
 ds1 <- Storm_Data
-names(ds1) <- str_to_lower(names(ds1)) # Rename dataset columb names
+# variable must have a unique name in the dataset
+names(ds1)[names(ds1)=="STATE__"] <- "STATE_NUM"
+names(ds1)[names(ds1)=="LONGITUDE_"] <- "LONGITUDE_E"
+names(ds1) <- str_to_lower(names(ds1)) # Force lowercase dataset columb names
 names(ds1) <-str_replace(names(ds1), "_+$","") # Remove final underscore from columb names
 names(ds1) <- str_replace(names(ds1), "_",".") #
 names(ds1)
 ```
 
 ```
-##  [1] "state"      "bgn.date"   "bgn.time"   "time.zone"  "county"    
-##  [6] "countyname" "state"      "evtype"     "bgn.range"  "bgn.azi"   
-## [11] "bgn.locati" "end.date"   "end.time"   "county.end" "countyendn"
-## [16] "end.range"  "end.azi"    "end.locati" "length"     "width"     
-## [21] "f"          "mag"        "fatalities" "injuries"   "propdmg"   
-## [26] "propdmgexp" "cropdmg"    "cropdmgexp" "wfo"        "stateoffic"
-## [31] "zonenames"  "latitude"   "longitude"  "latitude.e" "longitude" 
-## [36] "remarks"    "refnum"
+##  [1] "state.num"   "bgn.date"    "bgn.time"    "time.zone"   "county"     
+##  [6] "countyname"  "state"       "evtype"      "bgn.range"   "bgn.azi"    
+## [11] "bgn.locati"  "end.date"    "end.time"    "county.end"  "countyendn" 
+## [16] "end.range"   "end.azi"     "end.locati"  "length"      "width"      
+## [21] "f"           "mag"         "fatalities"  "injuries"    "propdmg"    
+## [26] "propdmgexp"  "cropdmg"     "cropdmgexp"  "wfo"         "stateoffic" 
+## [31] "zonenames"   "latitude"    "longitude"   "latitude.e"  "longitude.e"
+## [36] "remarks"     "refnum"
 ```
 
-1. Across the United States, which types of events (as indicated in the 𝙴𝚅𝚃𝚈𝙿𝙴 variable) are most harmful with respect to population health?
-
-Check how many difference type events are present in the dataset
-
-```r
-dim(table(ds1$evtype))
-```
-
-```
-## [1] 985
-```
-it's seems to be 985 different events but if a check inside I see that the same event name appear in upper and lower case
 
 
 ```r
-table(ds1$evtype)[21:22]
+# Remove the observation with no interest for answer the question fo this analysis
+#ds2 <- ds1[ds1$fatalities > 0 | ds1$injuries > 0 | ds1$cropdmg > 0 | ds1$propdmg > 0,] 
+ds2 <- ds1[ds1$fatalities > 0 | ds1$injuries > 0,] 
+dim(ds2)
 ```
 
 ```
-## 
-## Beach Erosion BEACH EROSION 
-##             1             3
+## [1] 21929    37
+```
+#####1. Across the United States, which types of events (as indicated in the 𝙴𝚅𝚃𝚈𝙿𝙴 variable) are most harmful with respect to population health?
+
+We assume that the variable of interest, for analazing the impact on population healt, present in the dataset are:
+- fatalites 
+- injuries 
+so we create a subset from the original dataset with only the variable of interest.
+
+
+```r
+# Create a dataset with only the columb/variable of interest to answer the question
+ds3 <- select(ds2, fatalities, injuries, evtype)
+# Force all `evtypes` to uppercase 
+ds3$evtype <- str_to_upper(ds3$evtype)
+# replace multiple spaces with single space
+ds3$evtype <- gsub(" +", " ", ds3$evtype)
+dim(table(ds3$evtype))
+```
+
+```
+## [1] 204
 ```
 
 ```r
-ds1$evtype <- str_to_upper(ds1$evtype)
-dim(table(ds1$evtype))
+ds4 <- ds3 %>% group_by(evtype) %>% summarise(tot.fatalities = sum(fatalities), tot.injuries = sum(injuries))
+dim(ds4) # 
 ```
 
 ```
-## [1] 898
+## [1] 204   3
+```
+
+
+```r
+fatalities <- arrange(ds4, desc(tot.fatalities))
+mean(fatalities$tot.fatalities) # Mean value for fatalities
+```
+
+```
+## [1] 74.2402
+```
+
+
+```r
+plot_fatalities <- fatalities[fatalities$tot.fatalities > mean(fatalities$tot.fatalities), ]
+nrow(plot_fatalities) # Events with n. of fatalities greater that the mean
+```
+
+```
+## [1] 25
 ```
 
 ```r
-table(ds1$evtype)[15:28]
+ggplot(plot_fatalities, aes(tot.fatalities, fct_reorder(evtype, tot.fatalities))) + geom_point() + labs(title="Total fatalities by storm type", x="N. fatalities", y="", caption = "") 
+```
+
+![](RepData_PeerAssessment2_files/figure-html/plot total fatalities by Storm-1.png)<!-- -->
+
+
+```r
+injuries <- arrange(ds4, desc(tot.injuries))
+mean(injuries$tot.injuries) # Mean value for injuries
 ```
 
 ```
-## 
-##                  APACHE COUNTY         ASTRONOMICAL HIGH TIDE 
-##                              1                            103 
-##          ASTRONOMICAL LOW TIDE                       AVALANCE 
-##                            174                              1 
-##                      AVALANCHE                   BEACH EROSIN 
-##                            386                              1 
-##                  BEACH EROSION    BEACH EROSION/COASTAL FLOOD 
-##                              4                              1 
-##                    BEACH FLOOD     BELOW NORMAL PRECIPITATION 
-##                              2                              2 
-##              BITTER WIND CHILL BITTER WIND CHILL TEMPERATURES 
-##                              1                              3 
-##                      BLACK ICE                       BLIZZARD 
-##                             17                           2719
+## [1] 688.8627
 ```
 
-The events number decrease from 
+
+```r
+plot_injuries <- injuries[injuries$tot.injuries > mean(injuries$tot.injuries), ]
+nrow(plot_injuries) # Events with n. of injuries > mean(injuries)
+```
+
+```
+## [1] 18
+```
+
+```r
+ggplot(plot_injuries, aes(tot.injuries, fct_reorder(evtype, tot.injuries))) + geom_point() + labs(title="Total injuries by Storm Type", x="N.injuries", y="") 
+```
+
+![](RepData_PeerAssessment2_files/figure-html/plot total injuries by Storm-1.png)<!-- -->
 
 
-## Including Plots
 
-You can also embed plots, for example:
+```r
+# Create a vector for all the possible Event Types (48 from Directive 10-1605)
+evtype.group <- c("Astronomical Low Tide", "Avalanche","Blizzard", "Coastal Flood", "Cold Wind Chill", "Debris Flow", "Dense Fog","Dense Smoke", "Drought", "Dust Devil", "Dust Storm", "Excessive Heat", "Extreme Cold Wind Chill", "Flash Flood ", "Flood", "Frost Freeze", "Freezing Fog","Funnel Cloud", "Hail", "Heat", "Heavy Rain","Heavy Snow", "High Surf", "High Wind", "Hurricane Typhoon", "Ice Storm", "Lakeshore Flood", "Lake Effect Snow", "Lightning", "Marine Hail", "Marine High Wind", "Marine Strong Wind","Marine Thunderstorm Wind","Rip Current", "Seiche", "Sleet","Storm Surge Tide", "Strong Wind", "Thunderstorm Wind", "Tornado", "Tropical Depression", "Tropical Storm", "Tsunami", "Volcanic Ash", "Waterspout", "Wildfire", "Winter Storm", "Winter Weather")
+evtype.group <- str_to_upper(evtype.group)
+evtype.group <- gsub(" ", "|", evtype.group)
+evtype.group
+```
 
+```
+##  [1] "ASTRONOMICAL|LOW|TIDE"    "AVALANCHE"               
+##  [3] "BLIZZARD"                 "COASTAL|FLOOD"           
+##  [5] "COLD|WIND|CHILL"          "DEBRIS|FLOW"             
+##  [7] "DENSE|FOG"                "DENSE|SMOKE"             
+##  [9] "DROUGHT"                  "DUST|DEVIL"              
+## [11] "DUST|STORM"               "EXCESSIVE|HEAT"          
+## [13] "EXTREME|COLD|WIND|CHILL"  "FLASH|FLOOD|"            
+## [15] "FLOOD"                    "FROST|FREEZE"            
+## [17] "FREEZING|FOG"             "FUNNEL|CLOUD"            
+## [19] "HAIL"                     "HEAT"                    
+## [21] "HEAVY|RAIN"               "HEAVY|SNOW"              
+## [23] "HIGH|SURF"                "HIGH|WIND"               
+## [25] "HURRICANE|TYPHOON"        "ICE|STORM"               
+## [27] "LAKESHORE|FLOOD"          "LAKE|EFFECT|SNOW"        
+## [29] "LIGHTNING"                "MARINE|HAIL"             
+## [31] "MARINE|HIGH|WIND"         "MARINE|STRONG|WIND"      
+## [33] "MARINE|THUNDERSTORM|WIND" "RIP|CURRENT"             
+## [35] "SEICHE"                   "SLEET"                   
+## [37] "STORM|SURGE|TIDE"         "STRONG|WIND"             
+## [39] "THUNDERSTORM|WIND"        "TORNADO"                 
+## [41] "TROPICAL|DEPRESSION"      "TROPICAL|STORM"          
+## [43] "TSUNAMI"                  "VOLCANIC|ASH"            
+## [45] "WATERSPOUT"               "WILDFIRE"                
+## [47] "WINTER|STORM"             "WINTER|WEATHER"
+```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+ggplot(data = diamonds) +
+          geom_bar(
+            mapping = aes(x = cut, fill = clarity),
+            position = "dodge"
+          )
+          
+Now we assign a precise even type at each observation in the Dataset 
+
+#####2. Across the United States, which types of events have the greatest economic consequences?
+
+We assume that the variable of interest, for greatest economic consequences, present in the dataset are:
+- propdmg (Property damage)
+- cropdmg (Crop damage)
