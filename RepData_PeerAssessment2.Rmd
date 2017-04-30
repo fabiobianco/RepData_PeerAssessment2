@@ -3,13 +3,13 @@ title: "RepData_PeerAssessment2"
 author: "by Fabio Bianchini"
 date: "30/04/2017"
 output:
-  html_document:
-    keep_md: yes
   pdf_document:
     fig_caption: yes
     fig_height: 6
     fig_width: 7
     latex_engine: xelatex
+  html_document:
+    keep_md: yes
 ---
 
 ```{r Library, include=FALSE}
