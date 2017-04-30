@@ -1,50 +1,55 @@
 ---
 title: "RepData_PeerAssessment2"
 author: "by Fabio Bianchini"
-date: "XX/XX/2017"
+date: "30/04/2017"
 output:
   html_document:
     keep_md: yes
   pdf_document:
+    fig_caption: yes
+    fig_height: 6
+    fig_width: 7
     latex_engine: xelatex
 ---
 
-
-The following timelines show the different time spans for each period of unique data collection and processing procedures. Select below for detailed decriptions of each data collection type. 
-<https://www.ncdc.noaa.gov/stormevents/details.jsp>
-
 ```{r Library, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-library(downloader)  # need for download function
-library(R.utils)  # needed for bunzip2 function
-library(dplyr)
-library(tidyverse)
-library(stringr) # need for string manipulation
-library(forcats)
+packages <- c("downloader", "ggplot2","R.utils", "dplyr","tidyverse","stringr","forcats", "knitr")
+    for (package in packages) {
+        library(package, character.only = TRUE, warn.conflicts = FALSE)
+    }
 ```
+##Synopsis
+In this analysis it will use the **U.S. National Oceanic and Atmospheric Administration's (NOAA) storm database** to answer this to question:
 
-Loading and Processing the Raw Data
+1. Across the United States, which types of events (as indicated in the 𝙴𝚅𝚃𝚈𝙿𝙴 variable) are most harmful with respect to population health?
+
+2. Across the United States, which types of events have the greatest economic consequences?
+
+The events in the database start in the year 1950 and end in November 2011. In the earlier years of the database there are generally fewer events recorded, most likely due to a lack of good records. More recent years should be considered more complete.
+The following timelines show the different time spans for each period of unique data collection and processing procedures. 
+Select below for detailed decriptions of each data collection type. 
+<https://www.ncdc.noaa.gov/stormevents/details.jsp>
+
+
+##Data processing
+#####Loading Raw Data
 ```{r, Load data, cache=TRUE}
 url <- "https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2"
 download(url, "Storm_Data.bz2", mode = "wb") #Download dataset from specific URL
-```
-
-```{r, Storm_Data - dataset creation, cache=TRUE}
 bunzip2("Storm_Data.bz2", "Storm_data.csv", remove = FALSE, skip = TRUE) # unzip data file
 Storm_Data <- read.csv("Storm_data.csv") #
-Storm_Data <- as_tibble(Storm_Data)
-str(Storm_Data)
 ```
 
 ```{r, Storm_Data - data analysis}
-dim(Storm_Data) # Dataset dimension
-names(Storm_Data) 
+dim(Storm_Data) # Original dataset dimension
+names(Storm_Data) # Variables name in the orginal dataset
 ```
 
-Process/transform the data into a format suitable for your analysis
+#####Process/transform the data into a format suitable for the analysis
 
 ```{r, ds1 - Rearrange and rename Dataset columb}
-ds1 <- Storm_Data
+ds1 <- as_tibble(Storm_Data)
 # variable must have a unique name in the dataset
 names(ds1)[names(ds1)=="STATE__"] <- "STATE_NUM"
 names(ds1)[names(ds1)=="LONGITUDE_"] <- "LONGITUDE_E"
@@ -54,75 +59,145 @@ names(ds1) <- str_replace(names(ds1), "_",".") #
 names(ds1)
 ```
 
-
 ```{r, ds2 - Significant observation dataset}
-# Remove the observation with no interest for answer the question fo this analysis
-#ds2 <- ds1[ds1$fatalities > 0 | ds1$injuries > 0 | ds1$cropdmg > 0 | ds1$propdmg > 0,] 
-ds2 <- ds1[ds1$fatalities > 0 | ds1$injuries > 0,] 
+# Remove the observation with no interest for answer the question for this analysis
+ds2 <- ds1[ds1$fatalities > 0 | ds1$injuries > 0 | ds1$cropdmg > 0 | ds1$propdmg > 0,] 
 dim(ds2)
 ```
+
+## Result
+
 #####1. Across the United States, which types of events (as indicated in the 𝙴𝚅𝚃𝚈𝙿𝙴 variable) are most harmful with respect to population health?
 
-We assume that the variable of interest, for analazing the impact on population healt, present in the dataset are:
-- fatalites 
-- injuries 
-so we create a subset from the original dataset with only the variable of interest.
+The variables of interest, for analazing the impact on population healt are `fatalites` and `injuries`so we create a subset from the original dataset with only the variable of interest.
 
-```{r, ds3}
-# Create a dataset with only the columb/variable of interest to answer the question
+```{r, Summarazie Summarize fatalities and injuries valure grouped by `evtype`}
+# Create a dataset with only the columb/variable of interest to answer this question
 ds3 <- select(ds2, fatalities, injuries, evtype)
 # Force all `evtypes` to uppercase 
 ds3$evtype <- str_to_upper(ds3$evtype)
 # replace multiple spaces with single space
 ds3$evtype <- gsub(" +", " ", ds3$evtype)
-dim(table(ds3$evtype))
-```
-```{r, ds4}
-ds4 <- ds3 %>% group_by(evtype) %>% summarise(tot.fatalities = sum(fatalities), tot.injuries = sum(injuries))
+# Summarize fatalities and injuries valure grouped by `evtype`
+ds4 <- ds3 %>% group_by(evtype) %>% 
+        summarise(tot.fatalities = sum(fatalities), tot.injuries = sum(injuries))
+
+# Dimension for summarized dataset
 dim(ds4) # 
 ```
 
 ```{r, fatalities analysis}
+# Re-organize the dataset 
 fatalities <- arrange(ds4, desc(tot.fatalities))
-mean(fatalities$tot.fatalities) # Mean value for fatalities
+head(fatalities)
 ```
+
+**Fatalitis analysis**
+
+For this analysis we will consider only the events with n. of fatalities greater that the mean
 
 ```{r, plot total fatalities by Storm}
 plot_fatalities <- fatalities[fatalities$tot.fatalities > mean(fatalities$tot.fatalities), ]
 nrow(plot_fatalities) # Events with n. of fatalities greater that the mean
-ggplot(plot_fatalities, aes(tot.fatalities, fct_reorder(evtype, tot.fatalities))) + geom_point() + labs(title="Total fatalities by storm type", x="N. fatalities", y="", caption = "") 
+ggplot(plot_fatalities, aes(tot.fatalities, fct_reorder(evtype, tot.fatalities))) + geom_point() + labs(title="Total fatalities for storm in US (period 1950 - 2011)", x = "N. fatalities") 
 ```
+
+The TORNADO event has most harmful impact on public health with n. **`r as.integer(max(fatalities$tot.fatalities))`** total fatalities.
+
+*The first 10th Fatalities events*
+
+```{r, show fatalities table}
+library(knitr)
+kable(plot_fatalities[1:10,], col.names = c("Type of Events","Total Fatalities", "Total injuries") )
+```
+
+
+**Injuries analysis** 
+
+For this analysis we will consider only the events with n. of injuries greater that the mean
 
 ```{r, injuries analysis}
 injuries <- arrange(ds4, desc(tot.injuries))
 mean(injuries$tot.injuries) # Mean value for injuries
 ```
 
-```{r, plot total injuries by Storm}
+```{r}
 plot_injuries <- injuries[injuries$tot.injuries > mean(injuries$tot.injuries), ]
-nrow(plot_injuries) # Events with n. of injuries > mean(injuries)
-ggplot(plot_injuries, aes(tot.injuries, fct_reorder(evtype, tot.injuries))) + geom_point() + labs(title="Total injuries by Storm Type", x="N.injuries", y="") 
+nrow(plot_injuries) # Events with n. of injuries greater that the mean
+ggplot(plot_injuries, aes(tot.injuries, fct_reorder(evtype, tot.injuries))) + geom_point() + labs(title="Total injuries for storm in US (period 1950 - 2011)", x="N. injuries", y="") 
 ```
 
+The TORNADO event has most harmful impact on public health with n. **`r as.integer(max(injuries$tot.injuries))`** total injuries.
 
-```{r, Storm Data Event Table}
-# Create a vector for all the possible Event Types (48 from Directive 10-1605)
-evtype.group <- c("Astronomical Low Tide", "Avalanche","Blizzard", "Coastal Flood", "Cold Wind Chill", "Debris Flow", "Dense Fog","Dense Smoke", "Drought", "Dust Devil", "Dust Storm", "Excessive Heat", "Extreme Cold Wind Chill", "Flash Flood ", "Flood", "Frost Freeze", "Freezing Fog","Funnel Cloud", "Hail", "Heat", "Heavy Rain","Heavy Snow", "High Surf", "High Wind", "Hurricane Typhoon", "Ice Storm", "Lakeshore Flood", "Lake Effect Snow", "Lightning", "Marine Hail", "Marine High Wind", "Marine Strong Wind","Marine Thunderstorm Wind","Rip Current", "Seiche", "Sleet","Storm Surge Tide", "Strong Wind", "Thunderstorm Wind", "Tornado", "Tropical Depression", "Tropical Storm", "Tsunami", "Volcanic Ash", "Waterspout", "Wildfire", "Winter Storm", "Winter Weather")
-evtype.group <- str_to_upper(evtype.group)
-evtype.group <- gsub(" ", "|", evtype.group)
-evtype.group
+*The first 10th injuries events*
+
+```{r, show injuries table}
+library(knitr)
+kable(plot_injuries[1:10,], col.names = c("Type of Events","Total Fatalities", "Total injuries"))
 ```
 
-ggplot(data = diamonds) +
-          geom_bar(
-            mapping = aes(x = cut, fill = clarity),
-            position = "dodge"
-          )
-          
-Now we assign a precise even type at each observation in the Dataset 
 
 #####2. Across the United States, which types of events have the greatest economic consequences?
 
-We assume that the variable of interest, for greatest economic consequences, present in the dataset are:
-- propdmg (Property damage)
-- cropdmg (Crop damage)
+
+The variables of interest for analazing the **greatest economic consequences of a Storm event** are `Property damage` and `Crop damage`, so we create a subset from the original dataset with only the variables of interest
+
+```{r}
+damage <- select(ds2, evtype, propdmg, propdmgexp, cropdmg, cropdmgexp)
+
+```
+Due to the particulary form for storm data damage in the original dataset, we need to convert this variables in a form suitable per the correct analysis and rappresentation.
+
+```{r, Convert the variable}
+# Convert cropdmgexp and propdmgexp variables
+damage$propdmgexp <- as.character(damage$propdmgexp)
+damage$cropdmgexp <- as.character(damage$cropdmgexp)
+damage$propdmgexp <- str_to_upper(damage$propdmgexp)
+damage$cropdmgexp <- str_to_upper(damage$cropdmgexp)
+#
+damage$propdmg.value <- 0 # New dataset columb for property damage value
+damage[damage$propdmgexp == "K", ]$propdmg.value <- 3
+damage[damage$propdmgexp == "M", ]$propdmg.value <- 6
+damage[damage$propdmgexp == "B", ]$propdmg.value <- 7
+#
+damage$cropdmg.value <- 0 # New dataset columb for crop damage value
+damage[damage$cropdmgexp == "K", ]$cropdmg.value <- 3
+damage[damage$cropdmgexp == "M", ]$cropdmg.value <- 6
+damage[damage$cropdmgexp == "B", ]$cropdmg.value <- 7
+#
+damage$totdmg.value <- 0 # New dataset columb for total damage value 
+names(damage)
+```
+
+Now valorize the new `total damage value` columb as a `total property damage` and `total crop damage` value summ
+```{r, summarize the dataset}
+damage$totdmg.value <- damage$propdmg*(10^damage$propdmg.value) + damage$cropdmg*(10^damage$cropdmg.value)
+```
+
+```{r}
+# Summarize property damage and crop damage valure grouped by `evtype`
+ds5 <- damage %>% group_by(evtype) %>% summarise(total = sum(totdmg.value))
+plot_damage <- arrange(ds5, desc(total))
+# For the plot porpuose we consider only events with total damage value greater that the mean
+plot_damage <- plot_damage[plot_damage$total > mean(plot_damage$total), ]
+nrow(plot_damage) # Events with total damage amount greater that the mean
+```
+
+
+```{r, plot damage value}
+ggplot(plot_damage, aes(total/10^9, fct_reorder(evtype, total))) + geom_point() + labs(title="Total economic damage for storm in US (period 1950 - 2011)", x="Damage (Billions of USD)", y="Storm event type") 
+```
+
+The TORNADO event has the greatest economic consequences with **`r as.integer(max(plot_damage$total)/10^9)` Billions of USD** total damage value.
+
+
+*The first 10th great economic events*
+
+```{r, show damage table}
+library(knitr)
+plot_damage$total <- as.integer(plot_damage$total/10^9)
+kable(plot_damage[1:10,], col.names = c("Type of Events", "Economic damage (Billions of USD)"))
+```
+
+### Conclusion
+The TORNADO event seems to be the most harmful with respect to population health and have the greatest economic consequences. 
